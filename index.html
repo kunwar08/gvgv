@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blog Editor</title>
+  <style>
+    .dropzone {
+      width: 300px;
+      height: 200px;
+      border: 2px dashed #ccc;
+      text-align: center;
+      padding: 30px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="dropzone" id="textDropzone">Drop text here</div>
+  <div class="dropzone" id="imageDropzone">Drop image here</div>
+  <div class="dropzone" id="videoDropzone">Drop video here</div>
+  <div id="content"></div>
+
+  <script>
+    // Array to store the blog content
+    let blogContent = [];
+
+    // Function to handle dropped text
+    function handleTextDrop(event) {
+      event.preventDefault();
+      const text = event.dataTransfer.getData('text');
+      blogContent.push({ type: 'text', content: text });
+      displayContent();
+    }
+
+    // Function to handle dropped images
+    function handleImageDrop(event) {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const image = new Image();
+        image.src = event.target.result;
+        blogContent.push({ type: 'image', content: image.src });
+        displayContent();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Function to handle dropped videos
+    function handleVideoDrop(event) {
+      event.preventDefault();
+      const file = event.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const video = document.createElement('video');
+        video.src = event.target.result;
+        video.controls = true;
+        blogContent.push({ type: 'video', content: video.src });
+        displayContent();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Function to display the blog content
+    function displayContent() {
+      const contentContainer = document.getElementById('content');
+      contentContainer.innerHTML = '';
+
+      for (const item of blogContent) {
+        const element = document.createElement(item.type);
+        if (item.type === 'text') {
+          element.textContent = item.content;
+        } else if (item.type === 'image') {
+          element.src = item.content;
+        } else if (item.type === 'video') {
+          element.src = item.content;
+          element.controls = true;
+        }
+        contentContainer.appendChild(element);
+      }
+    }
+
+    // Event listeners for drag and drop
+    const dropzones = document.querySelectorAll('.dropzone');
+    dropzones.forEach(dropzone => {
+      dropzone.addEventListener('dragover', event => event.preventDefault());
+      dropzone.addEventListener('drop', event => {
+        if (dropzone.id === 'textDropzone') {
+          handleTextDrop(event);
+        } else if (dropzone.id === 'imageDropzone') {
+          handleImageDrop(event);
+        } else if (dropzone.id === 'videoDropzone') {
+          handleVideoDrop(event);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
